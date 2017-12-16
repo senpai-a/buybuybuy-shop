@@ -4,8 +4,9 @@
 #
 #-------------------------------------------------
 
-QT       += core gui\
-            QtSql
+QT       += core \
+            gui \
+            sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -34,3 +35,6 @@ HEADERS  += mainwindow.h \
     cart.h
 
 FORMS    += mainwindow.ui
+
+RESOURCES += \
+    resource.qrc

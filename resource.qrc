@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/new/icons">
+        <file>cart.png</file>
+        <file>user.png</file>
+        <file>addCart.png</file>
+        <file>icon.png</file>
+    </qresource>
+</RCC>

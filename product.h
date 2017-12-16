@@ -11,17 +11,17 @@ public:
     Product()=default;
     Product(int id_,QString name_,QString desc_,double price_,int amount_)
         :id(id_),name(name_),desc(desc_),price(price_),amount(amount_){}
-    QString getName(){return name;}
-    QString getDesc(){return desc;}
-    double getPrice(){return price;}
-    int getAmount(){return amount;}
+    QString getName() const{return name;}
+    QString getDesc() const{return desc;}
+    double getPrice() const{return price;}
+    int getAmount() const{return amount;}
+    int getID() const{return id;}
     virtual double countPrice(){return price*amount;}
     virtual bool addAmountAndSave(int add)=0;
     virtual bool save()=0;
     void addAmount(int add){amount+=add;}
 
 private:
-    bool save(QString tableName);
     int id;
     QString name;
     QString desc;//description
@@ -29,6 +29,7 @@ private:
     int amount;
 
 protected:
+    bool save(QString tableName);
     double countPrice(QString tableName);
     bool addAmountAndSave(int add,QString tableName);
 };
@@ -36,6 +37,7 @@ protected:
 class Book:public Product
 {
 public:
+    Book()=default;
     Book(int id_,QString name_,QString desc_,double price_,int amount_,QString author_)
         :Product(id_,name_,desc_,price_,amount_),author(author_){}
     double countPrice() override{
@@ -47,6 +49,7 @@ public:
     bool save() override{
         return this->Product::save("Book");
     }
+    QString getAuthor(){return author;}
 private:
     QString author;
 };
@@ -54,6 +57,7 @@ private:
 class Elec:public Product
 {
 public:
+    Elec()=default;
     Elec(int id_,QString name_,QString desc_,double price_,int amount_,QString brand_)
         :Product(id_,name_,desc_,price_,amount_),brand(brand_){}
     double countPrice() override{
@@ -65,6 +69,7 @@ public:
     bool save() override{
         return this->Product::save("Elec");
     }
+    QString getBrand(){return brand;}
 private:
     QString brand;
 };
@@ -72,7 +77,8 @@ private:
 class Clothes:public Product
 {
 public:
-    enum Sex{General,Male,Female};
+    enum Sex{General,Male,Female};//0,1,2
+    Clothes()=default;
     Clothes(int id_,QString name_,QString desc_,double price_,int amount_,Clothes::Sex sex_)
         :Product(id_,name_,desc_,price_,amount_),sex(sex_){}
     double countPrice() override{
@@ -84,6 +90,8 @@ public:
     bool save() override{
         return this->Product::save("Clothes");
     }
+    int getSexi(){return sex==Clothes::Male?1:(sex==Clothes::Female?2:0);}
+    Sex getSex(){return sex;}
 private:
     Sex sex;
 };
@@ -91,6 +99,7 @@ private:
 class Food:public Product
 {
 public:
+    Food()=default;
     Food(int id_,QString name_,QString desc_,double price_,int amount_,QDate date_)
         :Product(id_,name_,desc_,price_,amount_),date(date_){}
     double countPrice() override{
@@ -102,6 +111,7 @@ public:
     bool save() override{
         return this->Product::save("Food");
     }
+    QDate getDate(){return date;}
 private:
     QDate date;
 };
