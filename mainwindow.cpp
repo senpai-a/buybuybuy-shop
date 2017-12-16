@@ -25,18 +25,18 @@ bool MainWindow::readL(){
         return false;
     }
     QSqlQuery q;
-    //q.prepare("select ID,name,desc,amount,author,price from Book");
-    if(!q.exec("select ID,name,desc,amount,author,price from Book")){
+    q.prepare("select ID,name,desc,amount,author,price from Book");
+    if(!q.exec()){
         QMessageBox::information(this,"获取书籍类商品列表失败","无法查询数据库，请重试");
         return false;
     }
     while(q.next()){
-        int id=q.value(0).toInt();
-        QString name=q.value(1).toString();
-        QString desc=q.value(2).toString();
-        int amount=q.value(3).toInt();
-        QString author=q.value(4).toString();
-        double price=q.value(5).toDouble();
+        int id=q.value("ID").toInt();
+        QString name=q.value("name").toString();
+        QString desc=q.value("desc").toString();
+        int amount=q.value("amount").toInt();
+        QString author=q.value("author").toString();
+        double price=q.value("price").toDouble();
         Book bk(id,name,desc,price,amount,author);
         bookL.push_back(bk);
     }
