@@ -31,17 +31,20 @@ SOURCES += main.cpp\
     cart.cpp \
     user.cpp \
     hash.cpp \
-    signindialog.cpp
+    signindialog.cpp \
+    cartdialog.cpp
 
 HEADERS  += mainwindow.h \
     product.h \
     cart.h \
     user.h \
     hash.h \
-    signindialog.h
+    signindialog.h \
+    cartdialog.h
 
 FORMS    += mainwindow.ui \
-    signindialog.ui
+    signindialog.ui \
+    cartdialog.ui
 
 RESOURCES += \
     resource.qrc

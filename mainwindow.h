@@ -25,9 +25,9 @@ public:
 
 private slots:
     void on_userB_clicked();
-
     void on_addB_clicked();
-
+    void on_cartB_clicked();
+    void removeFromCart(int index);
 private:
     void showGoods();//从内存显示商品列表
     bool readL();//读入四种商品列表到内存
@@ -35,6 +35,8 @@ private:
     void readAndShowGoods(){if(readL())showGoods();}
     template <typename T>
     bool saveL(const QVector<T>&,QString tableName);
+    template <typename T>
+    T* find(const QVector<T>&,int id);
 
     Ui::MainWindow *ui;
     QTableWidget bookT;

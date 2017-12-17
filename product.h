@@ -11,7 +11,7 @@ public:
     Product()=default;
     virtual ~Product()=default;
     Product(int id_,QString name_,QString desc_,double price_,int amount_)
-        :id(id_),name(name_),desc(desc_),price(price_),amount(amount_){}
+        :id(id_),name(name_),desc(desc_),price(price_),amount(amount_){typeCode=0;}
     QString getName() const{return name;}
     QString getDesc() const{return desc;}
     double getPrice() const{return price;}
@@ -30,6 +30,7 @@ private:
     int amount;
 
 protected:
+    int typeCode;//0 base, 1 book, 2 elec, 3 clothes, 4 food
     bool save(QString tableName);
     double countPrice(QString tableName);
     bool addAmountAndSave(int add,QString tableName);
@@ -41,7 +42,7 @@ public:
     Book()=default;
     ~Book()=default;
     Book(int id_,QString name_,QString desc_,double price_,int amount_,QString author_)
-        :Product(id_,name_,desc_,price_,amount_),author(author_){}
+        :Product(id_,name_,desc_,price_,amount_),author(author_){typeCode=1;}
     double countPrice() override{
         return this->Product::countPrice("Book");
     }
@@ -52,6 +53,7 @@ public:
         return this->Product::save("Book");
     }
     QString getAuthor(){return author;}
+    int type() const{return 1;}
 private:
     QString author;
 };
@@ -62,7 +64,7 @@ public:
     Elec()=default;
     ~Elec()=default;
     Elec(int id_,QString name_,QString desc_,double price_,int amount_,QString brand_)
-        :Product(id_,name_,desc_,price_,amount_),brand(brand_){}
+        :Product(id_,name_,desc_,price_,amount_),brand(brand_){typeCode=2;}
     double countPrice() override{
         return this->Product::countPrice("Elec");
     }
@@ -73,6 +75,7 @@ public:
         return this->Product::save("Elec");
     }
     QString getBrand(){return brand;}
+    int type() const{return 2;}
 private:
     QString brand;
 };
@@ -84,7 +87,7 @@ public:
     Clothes()=default;
     ~Clothes()=default;
     Clothes(int id_,QString name_,QString desc_,double price_,int amount_,Clothes::Sex sex_)
-        :Product(id_,name_,desc_,price_,amount_),sex(sex_){}
+        :Product(id_,name_,desc_,price_,amount_),sex(sex_){typeCode=3;}
     double countPrice() override{
         return this->Product::countPrice("Clothes");
     }
@@ -96,6 +99,7 @@ public:
     }
     int getSexi(){return sex==Clothes::Male?1:(sex==Clothes::Female?2:0);}
     Sex getSex(){return sex;}
+    int type() const{return 3;}
 private:
     Sex sex;
 };
@@ -106,7 +110,7 @@ public:
     Food()=default;
     ~Food()=default;
     Food(int id_,QString name_,QString desc_,double price_,int amount_,QDate date_)
-        :Product(id_,name_,desc_,price_,amount_),date(date_){}
+        :Product(id_,name_,desc_,price_,amount_),date(date_){typeCode=4;}
     double countPrice() override{
         return this->Product::countPrice("Food");
     }
@@ -117,6 +121,7 @@ public:
         return this->Product::save("Food");
     }
     QDate getDate(){return date;}
+    int type() const{return 4;}
 private:
     QDate date;
 };

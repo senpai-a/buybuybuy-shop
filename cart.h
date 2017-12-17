@@ -11,11 +11,14 @@ public:
     ~Cart();
     int getSize(){return products.size();}
     double countPrice();
-    void addProduct(Product *p){products.push_back(p);}
+    void addProduct(Product *p){
+        products.push_back(p);
+    }
     void delProduct(int index){
         delete products[index];
         products.erase(products.begin()+index);
     }
+    vector<Product*> getListCopy(){return products;}
 private:
     vector<Product*> products;
 };

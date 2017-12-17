@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "signindialog.h"
+#include "cartdialog.h"
 #include <QInputDialog>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -111,10 +112,12 @@ bool MainWindow::saveL(const QVector<T>& L, QString tableName){
     }
     QSqlQuery q;
     for(auto it=L.begin();it!=L.end();it++){
-        q.prepare("update ? set amount=? where ID=?");
-        q.addBindValue(tableName);
+        q.prepare(QString("update %1 set amount=? where ID=?").arg(tableName));
+        //q.addBindValue(tableName);
         q.addBindValue(it->getAmount());
         q.addBindValue(it->getID());
+        //QMessageBox::information(0,"update",QString("update \'%1\' set amount=%2 where ID=%3")
+        //              .arg(tableName).arg(it->getAmount()).arg(it->getID()));
         if(!q.exec()){
             QMessageBox::information(this,"保存书籍商品列表失败",
                                      QString("%1品类的一项保存失败").arg(tableName));
@@ -158,7 +161,7 @@ void MainWindow::showGoods(){
 
     elecT.clear();
     elecT.setColumnCount(5);
-    elecT.setRowCount(bookL.size());
+    elecT.setRowCount(elecL.size());
     elecT.setHorizontalHeaderLabels(QStringList()
                                     <<"品名"
                                     <<"品牌"
@@ -180,7 +183,7 @@ void MainWindow::showGoods(){
 
     clothesT.clear();
     clothesT.setColumnCount(5);
-    clothesT.setRowCount(bookL.size());
+    clothesT.setRowCount(clothesL.size());
     clothesT.setHorizontalHeaderLabels(QStringList()
                                     <<"品名"
                                     <<"性别"
@@ -203,7 +206,7 @@ void MainWindow::showGoods(){
 
     foodT.clear();
     foodT.setColumnCount(5);
-    foodT.setRowCount(bookL.size());
+    foodT.setRowCount(foodL.size());
     foodT.setHorizontalHeaderLabels(QStringList()
                                     <<"名称"
                                     <<"描述"
@@ -231,6 +234,15 @@ void MainWindow::showGoods(){
     ui->tabWidget->addTab(&elecT,QIcon(),"电子");
     ui->tabWidget->addTab(&clothesT,QIcon(),"服装");
     ui->tabWidget->addTab(&foodT,QIcon(),"食品");
+}
+
+template <typename T>
+T* MainWindow::find(const QVector<T>& L,int id){
+    for(auto it=L.begin();it!=L.end();it++){
+        if(it->getID()==id)
+            return (T*)it;
+    }
+    return nullptr;
 }
 
 void MainWindow::on_userB_clicked()
@@ -291,10 +303,25 @@ void MainWindow::on_addB_clicked()
         QMessageBox::information(this,"未选择商品","未选择商品，请重试");
         return;
     }
+
+    //保存选择
     int r=t->currentRow();
+    int currentIndex=ui->tabWidget->currentIndex();
+    int chooseid=t->item(r,0)->data(Qt::UserRole).toInt();
+
+    readAndShowGoods();//刷新列表，获取最新库存数
+    ui->tabWidget->setCurrentIndex(currentIndex);
+    t->setCurrentItem(t->item(r,0));
     int id=t->item(r,0)->data(Qt::UserRole).toInt();
     QString name=t->item(r,0)->text();
     int restAmount=t->item(r,4)->data(Qt::UserRole).toInt();
+
+    if(id!=chooseid){//刷新后，表发生变动
+        QMessageBox::information(this,"服务当前不可用"
+                        ,"抱歉，由于数据库维护，商品发生了变动，请重新选择。");
+        return;
+    }
+
     if(restAmount<=0){
         QMessageBox::information(this,"库存不足！","抱歉，您选择的商品库存不足");
         return;
@@ -309,7 +336,15 @@ void MainWindow::on_addB_clicked()
                                         ,0,0,restAmount,1,&ask);
         if(amount==0||!ask)return;
         Book* b=new Book(id,name,desc,price,amount,author);
-        c.addProduct(b);
+
+       /*find<Book>(bookL,id)->addAmount(-amount);//扣库存
+        if(saveL())//扣库存保存成功，添加到购物车*/
+            c.addProduct(b);
+        /*else{
+            QMessageBox::information(this,"请求失败！","向库存请求商品失败，请重试");
+            find<Book>(bookL,id)->addAmount(amount);
+            return;
+        }*/
     }
     else if(ui->tabWidget->currentIndex()==1){//Elec
         QString brand=t->item(r,1)->text();
@@ -320,7 +355,15 @@ void MainWindow::on_addB_clicked()
                                         ,0,0,restAmount,1,&ask);
         if(amount==0||!ask)return;
         Elec* e=new Elec(id,name,desc,price,amount,brand);
-        c.addProduct(e);
+
+        /*find<Elec>(elecL,id)->addAmount(-amount);//扣库存
+        if(saveL())//扣库存保存成功，添加到购物车*/
+            c.addProduct(e);
+        /*else{
+            QMessageBox::information(this,"请求失败！","向库存请求商品失败，请重试");
+            find<Elec>(elecL,id)->addAmount(amount);
+            return;
+        }*/
     }
     else if(ui->tabWidget->currentIndex()==2){//clothes
         QString sexs=t->item(r,1)->text();
@@ -336,7 +379,15 @@ void MainWindow::on_addB_clicked()
                                         ,0,0,restAmount,1,&ask);
         if(amount==0||!ask)return;
         Clothes* clo=new Clothes(id,name,desc,price,amount,sex);
-        c.addProduct(clo);
+
+        /*find<Clothes>(clothesL,id)->addAmount(-amount);//扣库存
+        if(saveL())//扣库存保存成功，添加到购物车*/
+            c.addProduct(clo);
+        /*else{
+            QMessageBox::information(this,"请求失败！","向库存请求商品失败，请重试");
+            find<Clothes>(clothesL,id)->addAmount(amount);
+            return;
+        }*/
     }
     else if(ui->tabWidget->currentIndex()==3){//Food
         QString desc=t->item(r,1)->text();
@@ -347,13 +398,30 @@ void MainWindow::on_addB_clicked()
                                         ,0,0,restAmount,1,&ask);
         if(amount==0||!ask)return;
         Food* f=new Food(id,name,desc,price,amount,date);
-        c.addProduct(f);
+
+        /*find<Food>(foodL,id)->addAmount(-amount);//扣库存
+        if(saveL())//扣库存保存成功，添加到购物车*/
+            c.addProduct(f);
+        /*else{
+            QMessageBox::information(this,"请求失败！","向库存请求商品失败，请重试");
+            find<Food>(foodL,id)->addAmount(amount);
+            return;
+        }*/
     }
     ui->cartB->setText(QString("我的购物车(%1)").arg(c.getSize()));
+    //readAndShowGoods();//刷新库存
     return;
 }
 
 void MainWindow::on_cartB_clicked()
 {
+    CartDialog dia(&c,&u,this);
+    connect(&dia,SIGNAL(delFromCart(int)),this,SLOT(removeFromCart(int)));
+    dia.setWindowModality(Qt::ApplicationModal);
+    dia.exec();
+}
 
+void MainWindow::removeFromCart(int index){
+    c.delProduct(index);
+    ui->cartB->setText(QString("我的购物车(%1)").arg(c.getSize()));
 }
