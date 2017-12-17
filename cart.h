@@ -8,9 +8,14 @@ class Cart
 {
 public:
     Cart()=default;
+    ~Cart();
+    int getSize(){return products.size();}
     double countPrice();
     void addProduct(Product *p){products.push_back(p);}
-    void delProduct(int index){products.erase(products.begin()+index);}
+    void delProduct(int index){
+        delete products[index];
+        products.erase(products.begin()+index);
+    }
 private:
     vector<Product*> products;
 };

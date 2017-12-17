@@ -4,5 +4,7 @@
         <file>user.png</file>
         <file>addCart.png</file>
         <file>icon.png</file>
+        <file>box.png</file>
+        <file>wallet.png</file>
     </qresource>
 </RCC>

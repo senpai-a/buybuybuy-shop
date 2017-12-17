@@ -7,3 +7,9 @@ double Cart::countPrice(){
     }
     return ret;
 }
+
+Cart::~Cart(){
+    for(auto it=products.begin();it!=products.end();it++){
+        delete *it;
+    }
+}

@@ -9,6 +9,7 @@ class Product
 {
 public:
     Product()=default;
+    virtual ~Product()=default;
     Product(int id_,QString name_,QString desc_,double price_,int amount_)
         :id(id_),name(name_),desc(desc_),price(price_),amount(amount_){}
     QString getName() const{return name;}
@@ -38,6 +39,7 @@ class Book:public Product
 {
 public:
     Book()=default;
+    ~Book()=default;
     Book(int id_,QString name_,QString desc_,double price_,int amount_,QString author_)
         :Product(id_,name_,desc_,price_,amount_),author(author_){}
     double countPrice() override{
@@ -58,6 +60,7 @@ class Elec:public Product
 {
 public:
     Elec()=default;
+    ~Elec()=default;
     Elec(int id_,QString name_,QString desc_,double price_,int amount_,QString brand_)
         :Product(id_,name_,desc_,price_,amount_),brand(brand_){}
     double countPrice() override{
@@ -79,6 +82,7 @@ class Clothes:public Product
 public:
     enum Sex{General,Male,Female};//0,1,2
     Clothes()=default;
+    ~Clothes()=default;
     Clothes(int id_,QString name_,QString desc_,double price_,int amount_,Clothes::Sex sex_)
         :Product(id_,name_,desc_,price_,amount_),sex(sex_){}
     double countPrice() override{
@@ -100,6 +104,7 @@ class Food:public Product
 {
 public:
     Food()=default;
+    ~Food()=default;
     Food(int id_,QString name_,QString desc_,double price_,int amount_,QDate date_)
         :Product(id_,name_,desc_,price_,amount_),date(date_){}
     double countPrice() override{

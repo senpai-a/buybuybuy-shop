@@ -28,13 +28,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += main.cpp\
         mainwindow.cpp \
     product.cpp \
-    cart.cpp
+    cart.cpp \
+    user.cpp \
+    hash.cpp \
+    signindialog.cpp
 
 HEADERS  += mainwindow.h \
     product.h \
-    cart.h
+    cart.h \
+    user.h \
+    hash.h \
+    signindialog.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    signindialog.ui
 
 RESOURCES += \
     resource.qrc
