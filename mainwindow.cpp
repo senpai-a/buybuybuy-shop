@@ -445,6 +445,7 @@ bool MainWindow::saveCart(){
     q.exec();
     q.prepare(QString("create table %1( "
                       "id integer primary key, "
+                      "amount integer, "
                       "name text)").arg(tableName));
     if(!q.exec()){
         QMessageBox::information(this,"保存购物车失败","保存购物车失败:无法建立表");
@@ -459,9 +460,10 @@ bool MainWindow::saveCart(){
         int typeCode=itp->type();
         int id=itp->getID();
         id=id*1000+typeCode;
-        q.prepare(QString("insert into %1(id,name) "
-                          "values(?,?)").arg(tableName));
+        q.prepare(QString("insert into %1(id,amount,name) "
+                          "values(?,?,?)").arg(tableName));
         q.addBindValue(id);
+        q.addBindValue(itp->getAmount());
         q.addBindValue(itp->getName());
         if(!q.exec()){
             QMessageBox::information(this,"保存购物车"
@@ -478,7 +480,7 @@ void MainWindow::readCart(){
     }
    QString tableName=QString("%1_cart").arg(u.getName());
    QSqlQuery q;
-   q.prepare(QString("select id from %1").arg(tableName));
+   q.prepare(QString("select id,amount from %1").arg(tableName));
    if(!q.exec()){
        return;
    }
@@ -487,34 +489,35 @@ void MainWindow::readCart(){
        int id=q.value(0).toInt();
        int type=id%1000;
        id=id/1000;
+       int amount=q.value(1).toInt();
 
        if(type==0)continue;
        else if(type==1){//Book
            Book* b=find<Book>(bookL,id);
            Book* b_=new Book(b->getID(),b->getName()
                              ,b->getDesc(),b->getPrice()
-                             ,b->getAmount(),b->getAuthor());
+                             ,amount,b->getAuthor());
            c.addProduct(b_);
        }
        else if(type==2){//Elec
            Elec* b=find<Elec>(elecL,id);
            Elec* b_=new Elec(b->getID(),b->getName()
                              ,b->getDesc(),b->getPrice()
-                             ,b->getAmount(),b->getBrand());
+                             ,amount,b->getBrand());
            c.addProduct(b_);
        }
        else if(type==3){//Clothes
            Clothes* b=find<Clothes>(clothesL,id);
            Clothes* b_=new Clothes(b->getID(),b->getName()
                              ,b->getDesc(),b->getPrice()
-                             ,b->getAmount(),b->getSex());
+                             ,amount,b->getSex());
            c.addProduct(b_);
        }
        else if(type==4){//Food
            Food* b=find<Food>(foodL,id);
            Food* b_=new Food(b->getID(),b->getName()
                              ,b->getDesc(),b->getPrice()
-                             ,b->getAmount(),b->getDate());
+                             ,amount,b->getDate());
            c.addProduct(b_);
        }
    }
