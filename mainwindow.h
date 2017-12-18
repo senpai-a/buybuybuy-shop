@@ -28,11 +28,14 @@ private slots:
     void on_addB_clicked();
     void on_cartB_clicked();
     void removeFromCart(int index);
+
 private:
     void showGoods();//从内存显示商品列表
     bool readL();//读入四种商品列表到内存
     bool saveL();//写内存中四种商品的amount到数据库
     void readAndShowGoods(){if(readL())showGoods();}
+    bool saveCart();//保存购物车
+    void readCart();
     template <typename T>
     bool saveL(const QVector<T>&,QString tableName);
     template <typename T>

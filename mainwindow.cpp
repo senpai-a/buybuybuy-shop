@@ -251,6 +251,7 @@ void MainWindow::on_userB_clicked()
         int comf=QMessageBox::question(this,"登出","确定退出登录吗？"
                               ,QMessageBox::Ok,QMessageBox::Cancel);
         if(comf!=QMessageBox::Ok){
+            readAndShowGoods();
             return;
         }
         u=User();
@@ -263,6 +264,7 @@ void MainWindow::on_userB_clicked()
         ui->addB->hide();
         ui->cartB->setText("我的购物车(0)");
         ui->cartB->hide();
+        readAndShowGoods();
         return;
     }
 
@@ -277,6 +279,8 @@ void MainWindow::on_userB_clicked()
         ui->boughtB->show();
         ui->addB->show();
         ui->cartB->show();
+        readAndShowGoods();
+        readCart();
         return;
     }
     else{
@@ -285,6 +289,7 @@ void MainWindow::on_userB_clicked()
         login=false;
         ui->userLabel->setText("用户未登录");
         ui->userB->setText("登录/注册");
+        readAndShowGoods();
         return;
     }
 
@@ -410,6 +415,7 @@ void MainWindow::on_addB_clicked()
     }
     ui->cartB->setText(QString("我的购物车(%1)").arg(c.getSize()));
     //readAndShowGoods();//刷新库存
+    saveCart();
     return;
 }
 
@@ -424,4 +430,93 @@ void MainWindow::on_cartB_clicked()
 void MainWindow::removeFromCart(int index){
     c.delProduct(index);
     ui->cartB->setText(QString("我的购物车(%1)").arg(c.getSize()));
+    saveCart();
+}
+
+bool MainWindow::saveCart(){
+    QSqlDatabase db=QSqlDatabase::database();
+    if(!db.open()){
+        QMessageBox::information(this,"无法保存购物车","无法连接到数据库");
+        return false;
+    }
+    QString tableName=QString("%1_cart").arg(u.getName());
+    QSqlQuery q;
+    q.prepare(QString("drop table %1").arg(tableName));
+    q.exec();
+    q.prepare(QString("create table %1( "
+                      "id integer primary key, "
+                      "name text)").arg(tableName));
+    if(!q.exec()){
+        QMessageBox::information(this,"保存购物车失败","保存购物车失败:无法建立表");
+        q.exec(QString("drop table %1").arg(tableName));
+        return false;
+    }
+
+    vector<Product*> p=c.getListCopy();
+    for(auto it=p.begin();it!=p.end();it++){
+        Product* &itp=*it;
+        if(itp->type()==0)continue;
+        int typeCode=itp->type();
+        int id=itp->getID();
+        id=id*1000+typeCode;
+        q.prepare(QString("insert into %1(id,name) "
+                          "values(?,?)").arg(tableName));
+        q.addBindValue(id);
+        q.addBindValue(itp->getName());
+        if(!q.exec()){
+            QMessageBox::information(this,"保存购物车"
+                ,QString("一项商品保存失败:%1").arg(itp->getName()));
+        }
+    }
+    return true;
+}
+
+void MainWindow::readCart(){
+    QSqlDatabase db=QSqlDatabase::database();
+    if(!db.open()){
+        return;
+    }
+   QString tableName=QString("%1_cart").arg(u.getName());
+   QSqlQuery q;
+   q.prepare(QString("select id from %1").arg(tableName));
+   if(!q.exec()){
+       return;
+   }
+   c=Cart();
+   while(q.next()){
+       int id=q.value(0).toInt();
+       int type=id%1000;
+       id=id/1000;
+
+       if(type==0)continue;
+       else if(type==1){//Book
+           Book* b=find<Book>(bookL,id);
+           Book* b_=new Book(b->getID(),b->getName()
+                             ,b->getDesc(),b->getPrice()
+                             ,b->getAmount(),b->getAuthor());
+           c.addProduct(b_);
+       }
+       else if(type==2){//Elec
+           Elec* b=find<Elec>(elecL,id);
+           Elec* b_=new Elec(b->getID(),b->getName()
+                             ,b->getDesc(),b->getPrice()
+                             ,b->getAmount(),b->getBrand());
+           c.addProduct(b_);
+       }
+       else if(type==3){//Clothes
+           Clothes* b=find<Clothes>(clothesL,id);
+           Clothes* b_=new Clothes(b->getID(),b->getName()
+                             ,b->getDesc(),b->getPrice()
+                             ,b->getAmount(),b->getSex());
+           c.addProduct(b_);
+       }
+       else if(type==4){//Food
+           Food* b=find<Food>(foodL,id);
+           Food* b_=new Food(b->getID(),b->getName()
+                             ,b->getDesc(),b->getPrice()
+                             ,b->getAmount(),b->getDate());
+           c.addProduct(b_);
+       }
+   }
+   ui->cartB->setText(QString("我的购物车(%1)").arg(c.getSize()));
 }

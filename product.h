@@ -21,7 +21,7 @@ public:
     virtual bool addAmountAndSave(int add)=0;
     virtual bool save()=0;
     void addAmount(int add){amount+=add;}
-
+    virtual int type()const {return 0;}
 private:
     int id;
     QString name;
@@ -53,7 +53,7 @@ public:
         return this->Product::save("Book");
     }
     QString getAuthor(){return author;}
-    int type() const{return 1;}
+    int type() const override{return 1;}
 private:
     QString author;
 };
@@ -75,7 +75,7 @@ public:
         return this->Product::save("Elec");
     }
     QString getBrand(){return brand;}
-    int type() const{return 2;}
+    int type() const override{return 2;}
 private:
     QString brand;
 };
@@ -99,7 +99,7 @@ public:
     }
     int getSexi(){return sex==Clothes::Male?1:(sex==Clothes::Female?2:0);}
     Sex getSex(){return sex;}
-    int type() const{return 3;}
+    int type() const override{return 3;}
 private:
     Sex sex;
 };
@@ -121,7 +121,7 @@ public:
         return this->Product::save("Food");
     }
     QDate getDate(){return date;}
-    int type() const{return 4;}
+    int type() const override{return 4;}
 private:
     QDate date;
 };

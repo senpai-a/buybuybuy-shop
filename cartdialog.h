@@ -34,6 +34,7 @@ private slots:
     void showCart();
     void showCount();
     void refresh();
+    void on_cancelB_clicked();
 };
 
 #endif // CARTDIALOG_H

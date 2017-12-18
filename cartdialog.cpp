@@ -96,3 +96,8 @@ void CartDialog::refresh(){
     showCart();
     showCount();
 }
+
+void CartDialog::on_cancelB_clicked()
+{
+    this->reject();
+}
