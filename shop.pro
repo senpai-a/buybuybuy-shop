@@ -32,7 +32,8 @@ SOURCES += main.cpp\
     user.cpp \
     hash.cpp \
     signindialog.cpp \
-    cartdialog.cpp
+    cartdialog.cpp \
+    bankdialog.cpp
 
 HEADERS  += mainwindow.h \
     product.h \
@@ -40,11 +41,13 @@ HEADERS  += mainwindow.h \
     user.h \
     hash.h \
     signindialog.h \
-    cartdialog.h
+    cartdialog.h \
+    bankdialog.h
 
 FORMS    += mainwindow.ui \
     signindialog.ui \
-    cartdialog.ui
+    cartdialog.ui \
+    bankdialog.ui
 
 RESOURCES += \
     resource.qrc

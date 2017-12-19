@@ -6,5 +6,7 @@
         <file>icon.png</file>
         <file>box.png</file>
         <file>wallet.png</file>
+        <file>add.png</file>
+        <file>remove.png</file>
     </qresource>
 </RCC>
