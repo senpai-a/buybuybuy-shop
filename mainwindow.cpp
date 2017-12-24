@@ -281,6 +281,7 @@ void MainWindow::on_userB_clicked()
         ui->cartB->show();
         readAndShowGoods();
         readCart();
+        readCards();
         return;
     }
     else{
@@ -522,4 +523,33 @@ void MainWindow::readCart(){
        }
    }
    ui->cartB->setText(QString("我的购物车(%1)").arg(c.getSize()));
+}
+
+void MainWindow::readCards(){
+    QSqlDatabase db=QSqlDatabase::database();
+    if(!db.open()){
+        QMessageBox::information(this,"获取绑定银行卡失败"
+                                 ,"获取绑定银行卡失败：无法连接到数据库，请重试。");
+        return;
+    }
+    QSqlQuery q;
+    q.prepare("select bankID, accountID from bankCard where name=?");
+    q.addBindValue(u.getName());
+    if(!q.exec()){
+        QMessageBox::information(this,"获取绑定银行卡失败"
+                                 ,"获取绑定银行卡失败：无法查询数据库，请重试。");
+        return;
+    }
+    cards.clear();
+    while(q.next()){
+        int bankID=q.value(0).toInt();
+        QString accountID=q.value(1).toString();
+        BankCard bc(bankID,accountID);
+        cards.push_back(bc);
+    }
+}
+
+void MainWindow::on_bankB_clicked()
+{
+
 }

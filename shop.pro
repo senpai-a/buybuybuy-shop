@@ -6,7 +6,8 @@
 
 QT       += core \
             gui \
-            sql
+            sql \
+            network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -33,7 +34,8 @@ SOURCES += main.cpp\
     hash.cpp \
     signindialog.cpp \
     cartdialog.cpp \
-    bankdialog.cpp
+    bankdialog.cpp \
+    bankcard.cpp
 
 HEADERS  += mainwindow.h \
     product.h \
@@ -42,7 +44,8 @@ HEADERS  += mainwindow.h \
     hash.h \
     signindialog.h \
     cartdialog.h \
-    bankdialog.h
+    bankdialog.h \
+    bankcard.h
 
 FORMS    += mainwindow.ui \
     signindialog.ui \

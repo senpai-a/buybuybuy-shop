@@ -10,6 +10,7 @@
 #include "product.h"
 #include "user.h"
 #include "cart.h"
+#include "bankcard.h"
 
 namespace Ui {
 class MainWindow;
@@ -29,6 +30,8 @@ private slots:
     void on_cartB_clicked();
     void removeFromCart(int index);
 
+    void on_bankB_clicked();
+
 private:
     void showGoods();//从内存显示商品列表
     bool readL();//读入四种商品列表到内存
@@ -36,6 +39,7 @@ private:
     void readAndShowGoods(){if(readL())showGoods();}
     bool saveCart();//保存购物车
     void readCart();
+    void readCards();
     template <typename T>
     bool saveL(const QVector<T>&,QString tableName);
     template <typename T>
@@ -54,6 +58,7 @@ private:
 
     User u;
     Cart c;
+    QVector<BankCard> cards;
     bool login;
 };
 
