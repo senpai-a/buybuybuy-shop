@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "signindialog.h"
 #include "cartdialog.h"
+#include "bankdialog.h"
 #include <QInputDialog>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -15,6 +16,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->boughtB->hide();
     ui->addB->hide();
     ui->cartB->hide();
+    bookT.setEditTriggers(QTableWidget::NoEditTriggers);
+    elecT.setEditTriggers(QTableWidget::NoEditTriggers);
+    clothesT.setEditTriggers(QTableWidget::NoEditTriggers);
+    foodT.setEditTriggers(QTableWidget::NoEditTriggers);
+    bookT.setSelectionBehavior(QAbstractItemView::SelectRows);
+    elecT.setSelectionBehavior(QAbstractItemView::SelectRows);
+    clothesT.setSelectionBehavior(QAbstractItemView::SelectRows);
+    foodT.setSelectionBehavior(QAbstractItemView::SelectRows);
     readAndShowGoods();
 }
 
@@ -551,5 +560,9 @@ void MainWindow::readCards(){
 
 void MainWindow::on_bankB_clicked()
 {
-
+    BankDialog dia(&u,&cards,this);
+    if(!dia.initSuccess())
+        return;
+    connect(&dia,SIGNAL(updateCards()),this,SLOT(readCards()));
+    dia.exec();
 }
