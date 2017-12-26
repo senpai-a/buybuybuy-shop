@@ -22,6 +22,7 @@ private:
     Ui::BankDialog *ui;
     User* u;
     QVector<BankCard>* cards;
+    QMap<int,QString> bankName;
 };
 
 QMap<int,QString> banks();
