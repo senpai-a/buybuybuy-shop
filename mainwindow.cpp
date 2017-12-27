@@ -428,6 +428,7 @@ void MainWindow::on_addB_clicked()
     ui->cartB->setText(QString("我的购物车(%1)").arg(c.getSize()));
     //readAndShowGoods();//刷新库存
     saveCart();
+    readCart();
     return;
 }
 
@@ -444,6 +445,7 @@ void MainWindow::removeFromCart(int index){
     c.delProduct(index);
     ui->cartB->setText(QString("我的购物车(%1)").arg(c.getSize()));
     saveCart();
+    readCart();
 }
 
 bool MainWindow::saveCart(){
@@ -468,14 +470,29 @@ bool MainWindow::saveCart(){
         int typeCode=itp->type();
         int id=itp->getID();
         id=id*1000+typeCode;
-        q.prepare(QString("insert into %1(id,amount,name) "
-                          "values(?,?,?)").arg(tableName));
-        q.addBindValue(id);
-        q.addBindValue(itp->getAmount());
-        q.addBindValue(itp->getName());
-        if(!q.exec()){
-            QMessageBox::information(this,"保存购物车"
-                ,QString("一项商品保存失败:%1").arg(itp->getName()));
+        q.prepare(QString("select amount from %1").arg(tableName));
+        q.exec();
+        if(q.next()){//重复商品
+            int amount=q.value(0).toInt();
+            q.prepare(QString("update %1 set amount=? "
+                              "where id=?").arg(tableName));
+            q.addBindValue(amount+itp->getAmount());
+            q.addBindValue(id);
+            if(!q.exec()){
+                QMessageBox::information(this,"保存购物车"
+                    ,QString("一项商品添加失败:%1").arg(itp->getName()));
+            }
+        }
+        else{
+            q.prepare(QString("insert into %1(id,amount,name) "
+                              "values(?,?,?)").arg(tableName));
+            q.addBindValue(id);
+            q.addBindValue(itp->getAmount());
+            q.addBindValue(itp->getName());
+            if(!q.exec()){
+                QMessageBox::information(this,"保存购物车"
+                    ,QString("一项商品保存失败:%1").arg(itp->getName()));
+            }
         }
     }
     return true;
@@ -652,14 +669,29 @@ void MainWindow::saveBought(){
         int typeCode=itp->type();
         int id=itp->getID();
         id=id*1000+typeCode;
-        q.prepare(QString("insert into %1(id,amount,name) "
-                          "values(?,?,?)").arg(tableName));
-        q.addBindValue(id);
-        q.addBindValue(itp->getAmount());
-        q.addBindValue(itp->getName());
-        if(!q.exec()){
-            QMessageBox::information(this,"保存已买到的宝贝"
-                ,QString("一项商品保存失败:%1").arg(itp->getName()));
+        q.prepare(QString("select amount from %1").arg(tableName));
+        q.exec();
+        if(q.next()){//重复商品
+            int amount=q.value(0).toInt();
+            q.prepare(QString("update %1 set amount=? "
+                              "where id=?").arg(tableName));
+            q.addBindValue(amount+itp->getAmount());
+            q.addBindValue(id);
+            if(!q.exec()){
+                QMessageBox::information(this,"保存已买到的宝贝"
+                    ,QString("一项商品增加失败:%1").arg(itp->getName()));
+            }
+        }
+        else{
+            q.prepare(QString("insert into %1(id,amount,name) "
+                              "values(?,?,?)").arg(tableName));
+            q.addBindValue(id);
+            q.addBindValue(itp->getAmount());
+            q.addBindValue(itp->getName());
+            if(!q.exec()){
+                QMessageBox::information(this,"保存已买到的宝贝"
+                    ,QString("一项商品保存失败:%1").arg(itp->getName()));
+            }
         }
     }
 }
