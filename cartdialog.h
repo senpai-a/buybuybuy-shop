@@ -35,6 +35,10 @@ private slots:
     void showCount();
     void refresh();
     void on_cancelB_clicked();
+    void on_payB_clicked();
+
+signals:
+    void pay();
 };
 
 #endif // CARTDIALOG_H

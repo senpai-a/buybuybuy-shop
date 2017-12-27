@@ -3,6 +3,8 @@
 #include "signindialog.h"
 #include "cartdialog.h"
 #include "bankdialog.h"
+#include "paydialog.h"
+#include "boughtdialog.h"
 #include <QInputDialog>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -433,6 +435,7 @@ void MainWindow::on_cartB_clicked()
 {
     CartDialog dia(&c,&u,this);
     connect(&dia,SIGNAL(delFromCart(int)),this,SLOT(removeFromCart(int)));
+    connect(&dia,SIGNAL(pay()),this,SLOT(payCart()));
     dia.setWindowModality(Qt::ApplicationModal);
     dia.exec();
 }
@@ -451,15 +454,10 @@ bool MainWindow::saveCart(){
     }
     QString tableName=QString("%1_cart").arg(u.getName());
     QSqlQuery q;
-    q.prepare(QString("drop table %1").arg(tableName));
-    q.exec();
-    q.prepare(QString("create table %1( "
-                      "id integer primary key, "
-                      "amount integer, "
-                      "name text)").arg(tableName));
+    q.prepare(QString("delete from %1").arg(tableName));
     if(!q.exec()){
-        QMessageBox::information(this,"保存购物车失败","保存购物车失败:无法建立表");
-        q.exec(QString("drop table %1").arg(tableName));
+        QMessageBox::information(this,"保存购物车失败"
+                                 ,"保存购物车失败:无法清空表");
         return false;
     }
 
@@ -494,7 +492,7 @@ void MainWindow::readCart(){
    if(!q.exec()){
        return;
    }
-   c=Cart();
+   c.clear();
    while(q.next()){
        int id=q.value(0).toInt();
        int type=id%1000;
@@ -564,5 +562,171 @@ void MainWindow::on_bankB_clicked()
     if(!dia.initSuccess())
         return;
     connect(&dia,SIGNAL(updateCards()),this,SLOT(readCards()));
+    dia.exec();
+}
+
+void MainWindow::payCart(){
+    readAndShowGoods();
+    vector<Product*> p=c.getListCopy();
+    for(auto it=p.begin();it!=p.end();it++){//检查库存
+        if(dynamic_cast<Book*>(*it)){
+            Book* b=dynamic_cast<Book*>(*it);//in cart
+            Book* s=find<Book>(bookL,b->getID());//stock
+            if(!s||s->getAmount() < b->getAmount()){
+                QMessageBox::information(this,"库存不足"
+                   ,QString("商品 %1 的库存不足了，请调整购物车")
+                                         .arg(b->getName()));
+                return;
+            }
+        }
+        else if(dynamic_cast<Elec*>(*it)){
+            Elec* b=dynamic_cast<Elec*>(*it);//in cart
+            Elec* s=find<Elec>(elecL,b->getID());//stock
+            if(!s||s->getAmount() < b->getAmount()){
+                QMessageBox::information(this,"库存不足"
+                   ,QString("商品 %1 的库存不足了，请调整购物车")
+                                         .arg(b->getName()));
+                return;
+            }
+        }
+        else if(dynamic_cast<Clothes*>(*it)){
+            Clothes* b=dynamic_cast<Clothes*>(*it);//in cart
+            Clothes* s=find<Clothes>(clothesL,b->getID());//stock
+            if(!s||s->getAmount() < b->getAmount()){
+                QMessageBox::information(this,"库存不足"
+                   ,QString("商品 %1 的库存不足了，请调整购物车")
+                                         .arg(b->getName()));
+                return;
+            }
+        }
+        else if(dynamic_cast<Food*>(*it)){
+            Food* b=dynamic_cast<Food*>(*it);//in cart
+            Food* s=find<Food>(foodL,b->getID());//stock
+            if(!s||s->getAmount() < b->getAmount()){
+                QMessageBox::information(this,"库存不足"
+                   ,QString("商品 %1 的库存不足了，请调整购物车")
+                                         .arg(b->getName()));
+                return;
+            }
+        }
+    }
+
+    PayDialog dia(c.countPrice(),&cards,this);
+    dia.setWindowModality(Qt::ApplicationModal);
+    connect(&dia,SIGNAL(payOK()),this,SLOT(payOK()));
+    connect(&dia,SIGNAL(payAbort()),this,SLOT(payAbort()));
+    dia.exec();
+}
+
+void MainWindow::payOK(){
+    QMessageBox::information(this,"支付成功"
+          ,"去\"已买到的宝贝\"看看吧！");
+    bought=c;
+    saveBought();
+    c.clear();
+    bought.clearP();
+    readCart();
+}
+
+void MainWindow::payAbort(){
+    QMessageBox::information(this,"支付操作中止"
+          ,"支付操作被用户中止，但是支付请求已经向银行发出。\n"
+           "这意味着如果银行卡密码正确，余额充足，银行端非常可能已经完成了这一笔扣款。\n"
+           "请务必检查您的银行卡账户，如果对订单有疑问，请联系客服。");
+    return;
+}
+
+void MainWindow::saveBought(){
+    QSqlDatabase db=QSqlDatabase::database();
+    if(!db.open()){
+        QMessageBox::information(this,"无法保存已买到的宝贝","无法连接到数据库");
+        return;
+    }
+    QString tableName=QString("%1_bought").arg(u.getName());
+    QSqlQuery q;
+
+    vector<Product*> p=bought.getListCopy();
+    for(auto it=p.begin();it!=p.end();it++){
+        Product* &itp=*it;
+        if(itp->type()==0)continue;
+        int typeCode=itp->type();
+        int id=itp->getID();
+        id=id*1000+typeCode;
+        q.prepare(QString("insert into %1(id,amount,name) "
+                          "values(?,?,?)").arg(tableName));
+        q.addBindValue(id);
+        q.addBindValue(itp->getAmount());
+        q.addBindValue(itp->getName());
+        if(!q.exec()){
+            QMessageBox::information(this,"保存已买到的宝贝"
+                ,QString("一项商品保存失败:%1").arg(itp->getName()));
+        }
+    }
+}
+
+void MainWindow::readBought(){
+    QSqlDatabase db=QSqlDatabase::database();
+    if(!db.open()){
+        QMessageBox::information(this,"无法获取已买到的宝贝"
+            ,"无法获取已买到的宝贝:无法连接到数据库");
+        return;
+    }
+   QString tableName=QString("%1_bought").arg(u.getName());
+   QSqlQuery q;
+   q.prepare(QString("select id,amount from %1").arg(tableName));
+   if(!q.exec()){
+       QMessageBox::information(this,"无法获取已买到的宝贝"
+           ,"无法获取已买到的宝贝:无法查询数据库");
+       return;
+   }
+   bought=Cart();
+   while(q.next()){
+       int id=q.value(0).toInt();
+       int type=id%1000;
+       id=id/1000;
+       int amount=q.value(1).toInt();
+
+       if(type==0)continue;
+       else if(type==1){//Book
+           Book* b=find<Book>(bookL,id);
+           Book* b_=new Book(b->getID(),b->getName()
+                             ,b->getDesc(),b->getPrice()
+                             ,amount,b->getAuthor());
+           bought.addProduct(b_);
+       }
+       else if(type==2){//Elec
+           Elec* b=find<Elec>(elecL,id);
+           Elec* b_=new Elec(b->getID(),b->getName()
+                             ,b->getDesc(),b->getPrice()
+                             ,amount,b->getBrand());
+           bought.addProduct(b_);
+       }
+       else if(type==3){//Clothes
+           Clothes* b=find<Clothes>(clothesL,id);
+           Clothes* b_=new Clothes(b->getID(),b->getName()
+                             ,b->getDesc(),b->getPrice()
+                             ,amount,b->getSex());
+           bought.addProduct(b_);
+       }
+       else if(type==4){//Food
+           Food* b=find<Food>(foodL,id);
+           Food* b_=new Food(b->getID(),b->getName()
+                             ,b->getDesc(),b->getPrice()
+                             ,amount,b->getDate());
+           bought.addProduct(b_);
+       }
+   }
+}
+
+void MainWindow::on_boughtB_clicked()
+{
+    readBought();
+    if(bought.getSize()==0){
+        QMessageBox::information(this,
+                                 "还没有买到的宝贝",
+                                 "还没有买到的宝贝");
+        return;
+    }
+    BoughtDialog dia(&bought);
     dia.exec();
 }

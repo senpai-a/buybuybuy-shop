@@ -18,6 +18,17 @@ public:
         delete products[index];
         products.erase(products.begin()+index);
     }
+    void clear(){
+        for(auto it=products.begin();it!=products.end();it++){
+            qDebug()<<it-products.begin()<<(*it)->getName();
+            delete *it;
+        }
+        products.clear();
+    }
+    void clearP(){
+        products.clear();
+    }
+
     vector<Product*> getListCopy(){return products;}
 private:
     vector<Product*> products;

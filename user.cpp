@@ -41,12 +41,40 @@ bool User::signUp(){
         return false;
     }
     QSqlQuery q1;
+    /*QString queryStr=QString("insert into User (name,pw) "
+                           "values(?,?);"
+                           "create table %1_cart( "
+                           "id integer primary key, "
+                           "amount integer, "
+                           "name text);"
+                           "create table %1_bought( "
+                           "id integer primary key, "
+                           "amount integer, "
+                           "name text);").arg(name);
+    q1.prepare(queryStr);
+    qDebug()<<queryStr;*/
     q1.prepare("insert into User (name,pw) "
                "values(?,?)");
     q1.addBindValue(name);
     q1.addBindValue(pw);
     if(!q1.exec()){
-        QMessageBox::information(0,"注册失败","注册失败，请重试");
+        QMessageBox::information(0,"注册失败","注册失败");
+        return false;
+    }
+    q1.prepare(QString("create table %1_cart( "
+               "id integer primary key, "
+               "amount integer, "
+               "name text);").arg(name));
+    if(!q1.exec()){
+        QMessageBox::information(0,"注册失败","建立购物车表失败");
+        return false;
+    }
+    q1.prepare(QString("create table %1_bought( "
+               "id integer primary key, "
+               "amount integer, "
+               "name text);").arg(name));
+    if(!q1.exec()){
+        QMessageBox::information(0,"注册失败","建立已买到的宝贝表失败");
         return false;
     }
     return true;

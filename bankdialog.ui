@@ -25,6 +25,10 @@
   <property name="windowTitle">
    <string>我的钱包</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="resource.qrc">
+    <normaloff>:/new/icons/wallet.png</normaloff>:/new/icons/wallet.png</iconset>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">

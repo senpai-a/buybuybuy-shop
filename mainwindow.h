@@ -31,6 +31,11 @@ private slots:
     void removeFromCart(int index);
     void on_bankB_clicked();
     void readCards();
+    void payCart();
+    void payOK();
+    void payAbort();
+    void on_boughtB_clicked();
+
 private:
     void showGoods();//从内存显示商品列表
     bool readL();//读入四种商品列表到内存
@@ -38,6 +43,8 @@ private:
     void readAndShowGoods(){if(readL())showGoods();}
     bool saveCart();//保存购物车
     void readCart();
+    void saveBought();
+    void readBought();
 
     template <typename T>
     bool saveL(const QVector<T>&,QString tableName);
@@ -57,6 +64,7 @@ private:
 
     User u;
     Cart c;
+    Cart bought;
     QVector<BankCard> cards;
     bool login;
 };

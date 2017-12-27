@@ -1,6 +1,7 @@
 #include "bankcard.h"
 #include <QtNetwork>
 #include <QMessageBox>
+#include "serveraddress.h"
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/document.h"
 
@@ -9,7 +10,7 @@ using namespace rapidjson;
 QMap<int,QString> banks(){
     QTcpSocket s;
     QMap<int,QString> ret;
-    s.connectToHost(QHostAddress::LocalHost,11111);
+    s.connectToHost(SERVER_ADDRESS,SERVER_PORT);
     if(!s.waitForConnected(1000)){
         QMessageBox::information(0,"网络连接错误"
             ,"银行服务器正在维护或无法连接到互联网，请稍后重试");
@@ -49,7 +50,7 @@ QMap<int,QString> banks(){
 
 bool BankCard::checkPw(const QString& pw){
     QTcpSocket s;
-    s.connectToHost(QHostAddress::LocalHost,11111);
+    s.connectToHost(SERVER_ADDRESS,SERVER_PORT);
     if(!s.waitForConnected(1000)){
         QMessageBox::information(0,"网络连接错误"
             ,"银行服务器正在维护或无法连接到互联网，请稍后重试");

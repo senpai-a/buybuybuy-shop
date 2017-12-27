@@ -101,3 +101,9 @@ void CartDialog::on_cancelB_clicked()
 {
     this->reject();
 }
+
+void CartDialog::on_payB_clicked()
+{
+    this->accept();
+    emit(pay());    
+}

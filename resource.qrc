@@ -8,5 +8,6 @@
         <file>wallet.png</file>
         <file>add.png</file>
         <file>remove.png</file>
+        <file>spin.gif</file>
     </qresource>
 </RCC>

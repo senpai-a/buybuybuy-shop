@@ -36,7 +36,9 @@ SOURCES += main.cpp\
     cartdialog.cpp \
     bankdialog.cpp \
     bankcard.cpp \
-    binddialog.cpp
+    binddialog.cpp \
+    paydialog.cpp \
+    boughtdialog.cpp
 
 HEADERS  += mainwindow.h \
     product.h \
@@ -82,13 +84,18 @@ HEADERS  += mainwindow.h \
     rapidjson/stream.h \
     rapidjson/stringbuffer.h \
     rapidjson/writer.h \
-    binddialog.h
+    binddialog.h \
+    paydialog.h \
+    serveraddress.h \
+    boughtdialog.h
 
 FORMS    += mainwindow.ui \
     signindialog.ui \
     cartdialog.ui \
     bankdialog.ui \
-    binddialog.ui
+    binddialog.ui \
+    paydialog.ui \
+    boughtdialog.ui
 
 RESOURCES += \
     resource.qrc
