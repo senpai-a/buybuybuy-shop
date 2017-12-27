@@ -106,7 +106,7 @@ bool MainWindow::readL(){
         QString name=q.value(1).toString();
         QString desc=q.value(2).toString();
         int amount=q.value(3).toInt();
-        QDate date=q.value(4).toDate();
+        QDate date=QDate::fromString(q.value(4).toString());
         double price=q.value(5).toDouble();
         Food f(id,name,desc,price,amount,date);
         foodL.push_back(f);
