@@ -427,7 +427,7 @@ void MainWindow::on_addB_clicked()
     }
     ui->cartB->setText(QString("我的购物车(%1)").arg(c.getSize()));
     //readAndShowGoods();//刷新库存
-    saveCart();
+    saveCart();//去重
     readCart();
     return;
 }
@@ -470,7 +470,9 @@ bool MainWindow::saveCart(){
         int typeCode=itp->type();
         int id=itp->getID();
         id=id*1000+typeCode;
-        q.prepare(QString("select amount from %1").arg(tableName));
+        q.prepare(QString("select amount from %1 "
+                          "where id =?").arg(tableName));
+        q.addBindValue(id);
         q.exec();
         if(q.next()){//重复商品
             int amount=q.value(0).toInt();
@@ -642,6 +644,7 @@ void MainWindow::payOK(){
     saveBought();
     c.clear();
     bought.clearP();
+    saveCart();
     readCart();
 }
 
@@ -669,7 +672,9 @@ void MainWindow::saveBought(){
         int typeCode=itp->type();
         int id=itp->getID();
         id=id*1000+typeCode;
-        q.prepare(QString("select amount from %1").arg(tableName));
+        q.prepare(QString("select amount from %1 "
+                          "where id=?").arg(tableName));
+        q.addBindValue(id);
         q.exec();
         if(q.next()){//重复商品
             int amount=q.value(0).toInt();
